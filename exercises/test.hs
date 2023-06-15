@@ -1,0 +1,298 @@
+-- import qualified Data.Text.Lazy as TL
+-- import Data.Text as T
+-- import Data.Word
+-- import qualified Data.ByteString as B
+-- import qualified Data.ByteString.Lazy as BL
+import qualified Data.Text as T
+import qualified Data.ByteString as B
+import Data.Text.Encoding
+p = T.length (T.pack "Ha∫keλ!")
+c1 = encodeUtf8 (T.pack "haskell")
+c2 = encodeUtf8 (T.pack "Ha∫keλ!")
+
+-- countLetter :: Char -> T.Text -> Int
+-- countLetter c t =
+--   case T.uncons t of
+--     Nothing -> 0
+--     Just (x,rest) -> (if x == c then 1 else 0) + countLetter c rest
+-- one = T.head(T.pack(repeat 'x'))
+-- two = TL.head (TL.pack(repeat 'x'))
+-- phrase = T.pack "brevity is the soul of wit"
+-- lazyPhrase = TL.pack "brevity is the soul of wit"
+-- binary = B.pack [99,111,102,102,101,101]
+-- h = BL.head (BL.pack (repeat 99))
+-- import Control.Monad
+--
+-- import Data.List (sortBy)
+--
+-- parseNumbers :: [String] -> [Int]
+-- parseNumbers strings = fmap read (strings >>= words)
+--
+-- concatMonadic :: Monad m => m String -> m String -> m String
+-- concatMonadic op1 op2 = op1 >>= (\value1 -> op2 >>= (\value2 -> return (value1++value2)))
+--
+-- example5 = concatMonadic (Just "abc") (Just "def")
+-- printTwoThings :: IO ()
+-- printTwoThings = putStrLn "One!" >> print 2
+-- echo :: IO()
+-- echo = getLine >>= putStrLn
+--
+-- verboseEcho :: IO()
+-- verboseEcho = getLine >>= \s -> putStrLn ("You wrote "++s)
+--
+-- query :: String -> IO String
+-- query question = putStrLn question >> getLine
+--
+-- confirm :: String -> IO Bool
+-- confirm question = putStrLn question >> fmap interpret getLine
+--     where interpret "Y" = True
+--           interpret _ = False
+--
+-- substrings :: String -> [String]
+-- substrings xs = do start <- [0..length xs - 1]
+--                    end <- [start+1..length xs - 1]
+--                    return $ drop start $ take end $ xs
+--
+-- palindromesIn :: String -> [String]
+-- palindromesIn xs = do s <- substrings xs
+--                       if (s==reverse s) then return s else []
+--
+-- longestPalindrome xs = head . sortBy f $ palindromesIn xs
+--   where f s s' = compare (length s') (length s)  -- longer is smaller
+--
+-- example3 = palindromesIn "aabbacddcaca"
+-- example4 = longestPalindrome "aabbacddcaca"
+--
+-- findSum :: [Int] -> Int -> [(Int,Int)]
+-- findSum xs k = [(a,b)| a <- xs, b <- xs, a+b == k]
+--
+-- example2 = findSum [1,2,3,4,5] 6
+--
+-- findLargest :: Ord a => [a] -> State a ()
+-- findLargest xs = mapM_ update xs
+--   where update x = modify (\y -> max x y)
+--
+-- rememberElement :: (a -> Bool) -> [a] -> State [a] ()
+-- rememberElement f xs = mapM_ maybePut xs
+--   where maybePut x = when (f x) (modify (++[x]))
+--
+-- sfilter :: (a -> Bool) -> [a] -> [a]
+-- sfilter f xs = finalState
+--     where (_, finalState) = runState (rememberElement f xs) []
+-- mywhen b op = if b then op else return ()
+--
+-- mymapM_ op [] = return ()
+-- mymapM_ op (x:xs) = do op x
+--                        mymapM_ op xs
+-- perhapsDecrease :: Int -> Maybe Int
+-- perhapsDecrease x  = do
+--         mywhen (x<=0) Nothing
+--         return (x-1)
+-- search :: (Show a, Eq a) => a->[a]->Logger()
+-- search x xs = mymapM_ look xs
+--    where look a = mywhen (x==a) (msg ("Found : "++show a))
+--
+-- sumPositive :: [Int] -> State Int()
+-- sumPositive xs = mymapM_ f xs
+--   where f x = when (x>0) (modify (x+))
+--
+-- example = do
+--     word <- ["Blue","Green"]
+--     number <- [1..4]
+--     return (word ++ show number)
+-- -- findSum :: [Int] -> Int -> [(Int,Int)]
+-- -- findSum xs k = do a <- xs
+-- --                   b <- xs
+-- --                   if (a+b==k) then [(a,b)] else []
+-- data Logger a = Logger [String] a deriving Show
+--
+-- msg :: String -> Logger ()
+-- msg s = Logger [s] ()
+--
+-- instance Functor Logger where
+--   fmap f (Logger s a) = Logger s (f a)
+--
+-- instance Applicative Logger where
+--   pure = return
+--   (<*>) = ap
+--
+--
+-- instance Monad Logger where
+--   return x = Logger [] x
+--   Logger l a >>= f = Logger (l ++ lb) b
+--       where Logger lb b = f a
+--
+-- nomsg :: a -> Logger a
+-- nomsg a = return a
+--
+-- annotate :: String -> a -> Logger a
+-- annotate str a = msg str >> return a
+--
+-- compute x = do
+--   a <- annotate "^2" (x*x)
+--   b <- annotate "+1" (a+1)
+--   annotate "*2" (b*2)
+--
+-- filterLog :: (Show a) => (a -> Bool) -> [a] -> Logger [a]
+-- filterLog _ [] = return []
+-- filterLog f (x:xs) 
+--    | f x = do msg ("keeping "++show x)
+--               xs' <- filterLog f xs
+--               return (x:xs')
+--    | otherwise = do msg ("dropping "++show x)
+--                     filterLog f xs
+--
+-- (?>) :: Maybe a -> (a -> Maybe b) -> Maybe b
+-- -- if we failed, don't even bother running the next step:
+-- Nothing ?> _ = Nothing
+-- -- otherwise run the next step:
+-- Just x  ?> f = f x
+--
+-- safeHead :: [a] -> Maybe a
+-- safeHead [] = Nothing
+-- safeHead (x:xs) = Just x
+--
+-- safeTail :: [a] -> Maybe [a]
+-- safeTail [] = Nothing
+-- safeTail (x:xs) = Just xs
+--
+-- safeThird :: [a] -> Maybe a
+-- safeThird xs = safeTail xs ?> safeTail ?> safeHead
+--
+-- safeNth :: Int -> [a] -> Maybe a
+-- safeNth 0 xs = safeHead xs
+-- safeNth n xs = safeTail xs ?> safeNth (n-1)
+--
+-- -- Logger definition
+-- data Logger a = Logger [String] a  deriving Show
+--
+-- getVal :: Logger a -> a
+-- getVal (Logger _ a) = a
+-- getLog :: Logger a -> [String]
+-- getLog (Logger s _) = s
+--
+-- -- Primitive operations:
+-- nomsg :: a -> Logger a
+-- nomsg x = Logger [] x        -- a value, no message
+--
+-- annotate :: String -> a -> Logger a
+-- annotate s x = Logger [s] x  -- a value and a message
+--
+-- msg :: String -> Logger ()
+-- msg s = Logger [s] ()        -- just a message
+--
+-- validateUser :: String -> Logger Bool
+-- validateUser "paul.atreides" = annotate "Valid user" True
+-- validateUser "ninja" = nomsg True
+-- validateUser u = annotate ("Invalid user: "++u) False
+--
+-- checkPassword :: String -> String -> Logger Bool
+-- checkPassword "paul.atreides" "muad'dib" = annotate "Password ok" True
+-- checkPassword "ninja"         ""         = annotate "Password ok" True
+-- checkPassword _               pass       = annotate ("Password wrong: "++pass) False
+--
+-- login :: String -> String -> Logger Bool
+-- login user password =
+--   let validation = validateUser user
+--   in if (getVal validation)
+--        then let check = checkPassword user password
+--             in Logger (getLog validation ++ getLog check) (getVal check)
+--        else validation
+--
+-- (#>) :: Logger a -> (a -> Logger b) -> Logger b
+-- Logger la a #> f = let Logger lb b = f a  -- feed value to next step
+--                    in Logger (la++lb) b   -- bundle result with all messages
+--
+-- -- square a number and log a message about it
+-- square :: Int -> Logger Int
+-- square val = annotate (show val ++ "^2") (val^2)
+--
+-- -- add 1 to a number and log a message about it
+-- add :: Int -> Logger Int
+-- add val = annotate (show val ++ "+1") (val+1)
+--
+-- -- double a number and log a message about it
+-- double :: Int -> Logger Int
+-- double val = annotate (show val ++ "*2") (val*2)
+--
+-- -- compute the expression 2*(x^2+1) with logging
+-- compute :: Int -> Logger Int
+-- compute x =
+--     square x
+--     #> add
+--     #> double
+--     
+-- -- sometimes you don't need the previous value:
+-- (##>) :: Logger a -> Logger b -> Logger b
+-- Logger la _ ##> Logger lb b = Logger (la++lb) b
+--
+-- filterLog :: (Eq a, Show a) => (a -> Bool) -> [a] -> Logger [a]
+-- filterLog f [] = nomsg []
+-- filterLog f (x:xs)
+--    | f x       = msg ("keeping "++show x) ##> filterLog f xs #> (\xs' -> nomsg (x:xs'))
+--    | otherwise = msg ("dropping "++show x) ##> filterLog f xs
+--
+-- import qualified Data.Map as Map
+--
+-- data Bank = Bank (Map.Map String Int)
+--   deriving Show
+--
+--
+-- deposit :: String -> Int -> Bank -> Bank
+-- deposit accountName amount (Bank accounts) =
+--   Bank (Map.adjust (\x -> x+amount) accountName accounts)
+--
+-- withdraw :: String -> Int -> Bank -> (Int,Bank)
+-- withdraw accountName amount (Bank accounts) =
+--   let -- balance is 0 for a nonexistant account
+--       balance = Map.findWithDefault 0 accountName accounts
+--       -- can't withdraw over balance
+--       withdrawal = min amount balance
+--       newAccounts = Map.adjust (\x -> x-withdrawal) accountName accounts
+--   in (withdrawal, Bank newAccounts)
+--
+-- share :: String -> String -> String -> Bank -> Bank
+-- share from to1 to2 bank =
+--   let (amount,bank1) = withdraw from 100 bank
+--       half = div amount 2
+--       -- carefully preserve all money, even if amount was an odd number
+--       rest = amount-half
+--       bank2 = deposit to1 half bank1
+--       bank3 = deposit to2 rest bank2
+--   in bank3
+--
+-- data BankOp a = BankOp ( Bank -> (a,Bank) )
+--
+-- runBackOp :: BankOp a -> Bank -> (a,Bank)
+-- runBackOp (BankOp f) bank = f bank
+--
+-- (+>>) :: BankOp a -> BankOp b -> BankOp b
+-- op1 +>> op2 = BankOp combined 
+--   where combined bank = let (_,bank1) = runBackOp op1 bank
+--                         in runBackOp op2 bank1
+--
+-- (+>) :: BankOp a -> (a -> BankOp b) -> BankOp b
+-- op +> func = BankOp combined
+--   where combined bank = let (a,bank1) = runBackOp op bank
+--                         in runBackOp (func a) bank1
+--
+-- depositOp :: String -> Int -> BankOp () -- no return value
+-- depositOp account amount = BankOp depositHelper
+--   where depositHelper bank = ((), deposit account amount bank)
+--
+-- withdrawOp :: String -> Int -> BankOp Int
+-- withdrawOp account amount = BankOp (withdraw account amount)
+--
+-- shareOp :: String -> String -> String -> BankOp ()
+-- shareOp from benefit1 benefit2 = 
+--   withdrawOp from 100
+--   +> 
+--   distribude benefit1 benefit2
+--
+-- distribude :: String -> String -> Int -> BankOp ()
+-- distribude benefit1 benefit2 amount = 
+--   depositOp benefit1 half
+--   +>>
+--   depositOp benefit2 rest 
+--   where half = div amount 2
+--         rest = amount - half
